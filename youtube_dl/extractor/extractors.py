@@ -1535,5 +1535,6 @@ from .zattoo import (
     ZattooLiveIE,
 )
 from .zdf import ZDFIE, ZDFChannelIE
+from .zee5 import Zee5IE, Zee5PlaylistIE
 from .zingmp3 import ZingMp3IE
 from .zype import ZypeIE
