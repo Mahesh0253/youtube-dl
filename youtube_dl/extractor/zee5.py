@@ -74,6 +74,7 @@ class Zee5PlaylistIE(Zee5BaseIE):
             video_id=playlist_id,
             note='Downloading token',
             errnote='Unable to download token')['token']
+
         headers = {
             "User-Agent":
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.66 Safari/537.36",
@@ -94,7 +95,6 @@ class Zee5PlaylistIE(Zee5BaseIE):
         while len(entries) < total_episodes:
             url = base_url + '?season_id=%s&translation=en&type=episode&limit=100&page=%d' % (
                 season['id'], page)
-            print(url)
             data = self._download_json(
                 url,
                 playlist_id,
