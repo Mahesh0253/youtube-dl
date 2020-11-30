@@ -35,7 +35,7 @@ class Zee5BaseIE(InfoExtractor):
 
 
 class Zee5IE(Zee5BaseIE):
-    _VALID_URL = r"https?://(?:www\.)?zee5\.com/(?:movies/details|tvshows/details/[\w-]+/[\d-]+/[\w-]+)/(?P<id>[\w-]+)"
+    _VALID_URL = r"https?://(?:www\.)?zee5\.com/(?:movies/details|tvshows/details/[\w-]+/[\d-]+)/[\w-]+/(?P<id>[\w-]+)"
 
     def _real_extract(self, url):
         video_id = self._match_id(url)
