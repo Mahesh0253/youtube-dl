@@ -35,7 +35,10 @@ class Zee5BaseIE(InfoExtractor):
 
 
 class Zee5IE(Zee5BaseIE):
-    _VALID_URL = r"https?://(?:www\.)?zee5\.com/(?:movies/details|tvshows/details/[\w-]+/[\d-]+)/[\w-]+/(?P<id>[\w-]+)"
+    _VALID_URL = r"""(?x)
+        https?://(?:www\.)?zee5\.com/
+            (?:movies/details|(?:tvshows/details|kids/kids-shows)/[\w-]+/[\d-]+)
+        /[\w-]+/(?P<id>[\w-]+)"""
 
     def _real_extract(self, url):
         video_id = self._match_id(url)
@@ -58,7 +61,7 @@ class Zee5IE(Zee5BaseIE):
 
 
 class Zee5PlaylistIE(Zee5BaseIE):
-    _VALID_URL = r"https?://(?:www\.)?zee5\.com/tvshows/details/[\w-]+/(?P<id>[\d-]+)/?$"
+    _VALID_URL = r"https?://(?:www\.)?zee5\.com/(?:tvshows/details|kids/kids-shows)/[\w-]+/(?P<id>[\d-]+)/?$"
 
     def _format_episode(self, episode):
         return self.url_result('https://www.zee5.com/' + episode['web_url'],
