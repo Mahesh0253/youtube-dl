@@ -63,8 +63,9 @@ class Zee5IE(Zee5BaseIE):
 class Zee5PlaylistIE(Zee5BaseIE):
     _VALID_URL = r"https?://(?:www\.)?zee5\.com/(?:tvshows/details|kids/kids-shows)/[\w-]+/(?P<id>[\d-]+)/?$"
 
-    def _format_episode(self, episode):
-        return self.url_result('https://www.zee5.com/' + episode['web_url'],
+    def _format_episode(self, episode, video_token):
+        url = 'https://zee5vodnd.akamaized.net/' + episode['hls'][0].replace('drm', 'hls') + video_token
+        return self.url_result(url=url,
                                video_id=episode.get('id'),
                                video_title=episode.get('title'))
 
@@ -84,29 +85,38 @@ class Zee5PlaylistIE(Zee5BaseIE):
             "X-Access-Token": access_token
         }
 
-        meta = self._download_json(base_url + playlist_id + '?translation=en&limit=1',
-                                   playlist_id,
-                                   headers=headers)
+        meta = self._download_json(
+            base_url + playlist_id + '?translation=en&limit=1',
+            playlist_id,
+            headers=headers)
 
-        page = 1
+        video_token = self._download_json(
+            "https://useraction.zee5.com/tokennd",
+            playlist_id,
+            note='Downloading video token',
+            errnote='Unable to download video token')['video_token']
+
+        page_number = 1
         entries = []
         season = meta['seasons'][0]
+        season_id = season['id']
         total_episodes = season['total_episodes']
-        url = base_url + '?season_id=%s&translation=en&type=episode&limit=100&page=%d' % (
-            season['id'], page)
 
         while len(entries) < total_episodes:
-            url = base_url + '?season_id=%s&translation=en&type=episode&limit=100&page=%d' % (
-                season['id'], page)
+            url = base_url + '?season_id=%s&type=episode&translation=en&on_air=false&page=%d&limit=100' % (
+                season_id, page_number)
             data = self._download_json(
                 url,
                 playlist_id,
-                note='Downloading playlist page: %d' % page,
-                errnote='Failed to download playlist page: %d' % page,
+                note='Downloading playlist page: %d' % page_number,
+                errnote='Failed to download playlist page: %d' % page_number,
                 headers=headers)
-            entries.extend(
-                [self._format_episode(episode) for episode in data['episode']])
-            page += 1
+
+            entries.extend([
+                self._format_episode(episode, video_token)
+                for episode in data['episode']
+            ])
+            page_number += 1
 
         return self.playlist_result(
             entries,
