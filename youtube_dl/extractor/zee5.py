@@ -63,9 +63,8 @@ class Zee5IE(Zee5BaseIE):
 class Zee5PlaylistIE(Zee5BaseIE):
     _VALID_URL = r"https?://(?:www\.)?zee5\.com/(?:tvshows/details|kids/kids-shows)/[\w-]+/(?P<id>[\d-]+)/?$"
 
-    def _format_episode(self, episode, video_token):
-        url = 'https://zee5vodnd.akamaized.net/' + episode['hls'][0].replace('drm', 'hls') + video_token
-        return self.url_result(url=url,
+    def _format_episode(self, episode):
+        return self.url_result('https://www.zee5.com/' + episode['web_url'],
                                video_id=episode.get('id'),
                                video_title=episode.get('title'))
 
@@ -90,12 +89,6 @@ class Zee5PlaylistIE(Zee5BaseIE):
             playlist_id,
             headers=headers)
 
-        video_token = self._download_json(
-            "https://useraction.zee5.com/tokennd",
-            playlist_id,
-            note='Downloading video token',
-            errnote='Unable to download video token')['video_token']
-
         page_number = 1
         entries = []
         season = meta['seasons'][0]
@@ -112,10 +105,8 @@ class Zee5PlaylistIE(Zee5BaseIE):
                 errnote='Failed to download playlist page: %d' % page_number,
                 headers=headers)
 
-            entries.extend([
-                self._format_episode(episode, video_token)
-                for episode in data['episode']
-            ])
+            entries.extend(
+                [self._format_episode(episode) for episode in data['episode']])
             page_number += 1
 
         return self.playlist_result(
